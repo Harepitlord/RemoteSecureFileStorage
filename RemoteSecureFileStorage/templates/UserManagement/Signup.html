@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <title>Sign Up</title>
+    <link rel = "stylesheet" type = "text/css" href = "{% static '/RSFS/css/signup.css' %}">
+</head>
+<body>
+    <nav class="navigation">
+        <div class="nav_div">
+            <label id="label1" class="navLabelEle"><a href="{% url 'hub:Home' %}">Home</a></label>
+            <label id="label2" class="navLabelEle"><a href="{% url 'UserManagement:Login' %}">Login</a></label>
+            <label id="label3" class="navLabelEle"><a href="{% url 'UserManagement:Signup' %}">Sign Up</a></label>
+            <label id="label4" class="navLabelEle"><a href="{% url 'hub:About' %}">About</a></label>
+        </div>
+    </nav>
+  <div class="signDiv">
+    <label class="signLabel" id="signLabel1">Register</label>
+      <form method="post">
+          {% csrf_token %}
+{#          <input type="text" class="signForm" id="signText1" name="email" placeholder="E-Mail"><br>#}
+{#          <input type="text" class="signForm" id="signText2" name="name" placeholder="Name"><br>#}
+{#          <input type="text" class="signForm" id="signText3" name="mobile" placeholder="Mobile Number"><br>#}
+{#          <label id="signLabel2" class="signRadio">Gender</label>#}
+{#          <input type="radio" id="signRadio1" class="signRadio" name="gender" value="Male">#}
+{#          <label id="signLabel3" class="signRadio">Male</label>#}
+{#          <input type="radio" id="signRadio2" class="signRadio" name="gender" value="Female">#}
+{#          <label id="signLabel4" class="signRadio">Female</label><br>#}
+{#          <input type="password" class="signForm" id="signText4" name="password" placeholder="Password"><br>#}
+{#          <input type="password" class="signForm" id="signText5" name="crtpassword" placeholder="Confirm Password"><br>#}
+{#          <input type="Submit" class="signButton" id="signSubmit" value="Register">#}
+        {% for field in form %}
+            <div class="fieldWrapper">
+                {{ field.errors }}
+                {{ field }}
+                {% if field.help_text %}
+                    <p class="help">{{ field.help_text|safe }}</p>
+                {% endif %}
+            </div>
+        {% endfor %}
+      </form>
+
+  </div>
+ <img src="https://www.itchimes.com/wp-content/uploads/2019/07/1.png" alt="icon">
+</body>
+</html>
