@@ -4,7 +4,7 @@ from Hub import models
 
 
 class ShipmentForm(forms.ModelForm):
-    document = forms.FileField(label="Documents",widget=forms.ClearableFileInput,allow_empty_file=False)
+    # document = forms.FileField(label="Documents",widget=forms.ClearableFileInput,allow_empty_file=False)
 
     class Meta:
         model = models.Shipment

@@ -3,7 +3,7 @@ from django.http import HttpRequest
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views import View
-from django.views.generic import CreateView, ListView
+from django.views.generic import CreateView, ListView, DetailView
 
 from Hub import models, forms
 
@@ -56,7 +56,7 @@ class NewShipment(CreateView):
     model = models.Shipment
     form_class = forms.ShipmentForm
     template_name = "hub/NewShipment.html"
-    success_url = reverse_lazy('hub:Dashboard')
+    success_url = reverse_lazy('hub:ShipperDashboard')
 
     def form_valid(self, form):
         form.save(commit=True)
@@ -71,3 +71,18 @@ class ShipmentHistory(ListView):
 class ShipmentReports(ListView):
     model = models.Shipment
     template_name = "hub/ShipperReports.html"
+
+
+class ShipmentDetailView(DetailView):
+    model = models.Shipment
+    template_name = "hub/ShipperDetail.html"
+    slug_field = "shipmentId"
+    slug_url_kwarg = "ShipmentId"
+    context_object_name = "shipment"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        shipment = self.get_object()
+        form = forms.ShipmentForm(instance=shipment)
+        context['form'] = form
+        return context

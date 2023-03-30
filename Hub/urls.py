@@ -14,4 +14,5 @@ urlpatterns = [
     path('shipper/makeShipment',views.NewShipment.as_view(),name='NewShipment'),
     path('shipper/shipmentHistory',views.ShipmentHistory.as_view(),name='ShipmentHistory'),
     path('shipper/reports',views.ShipmentReports.as_view(),name='ShipperReports'),
+    path('shipper/shipment/<slug:ShipmentId>',views.ShipmentDetailView.as_view(),name="ShipperDetail"),
 ]

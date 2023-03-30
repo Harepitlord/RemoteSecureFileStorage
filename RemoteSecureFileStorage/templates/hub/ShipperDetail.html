@@ -143,41 +143,25 @@
 
     <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-        <h1 class="h2">List of Shipments</h1>
+        <h1 class="h2">Shipment Detail</h1>
+    </div>
+        <div style="margin: auto; width: 50%; align-items: center;">
+                {% for field in form.visible_fields %}
+                  <div class="form-group">
+                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                    {{ field|add_class:'form-control' }}
+                    {% for error in field.errors %}
+                      <span class="help-block">{{ error }}</span>
+                    {% endfor %}
+                  </div>
+                {% endfor %}
     </div>
 
-    <div class="container">
-    <table class="table table-striped">
-        <thead class="thead">
-            <tr>
-                <th scope="col">Shipment #</th>
-                <th scope="col">Shipper Name</th>
-                <th scope="col">Origin</th>
-                <th scope="col">Destination</th>
-                <th scope="col">Recipient</th>
-                <th scope="col">Cargo Name</th>
-                <th scope="col">Cargo Type</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for shipment in object_list %}
-            <tr>
-                <td><a href="{% url 'hub:ShipperDetail' shipment.shipmentId %}">{{ shipment.shipmentId }}</a></td>
-            <td>{{ shipment.Shipper_Name }}</td>
-            <td>{{ shipment.Source }}</td>
-            <td>{{ shipment.Destination }}</td>
-            <td>{{ shipment.Receiver_Name }}</td>
-            <td>{{ shipment.Cargo_Name }}</td>
-            <td>{{ shipment.Cargo_Type }}</td>
-            </tr>
-        {% endfor %}
-
-        </tbody>
-      </table>
-    </div>
     </main>
+
     </div>
     </div>
+
 
 
   </body>
