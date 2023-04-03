@@ -23,7 +23,7 @@ class UserManager(BaseUserManager):
         )
         user.set_password(password)
         user.save(using=self._db)
-        user.groups.add(UserGroups().get_permission_group(role=extra_fields['role']))
+        user.groups.add(role=extra_fields['role'])
         user.save(using=self._db)
         return user
 
@@ -31,6 +31,7 @@ class UserManager(BaseUserManager):
         return self._create_user(email, password, False, False, **extra_fields)
 
     def create_superuser(self, email, password, **extra_fields):
+        extra_fields['role'] = UserGroups.authority
         user = self._create_user(email, password, True, True, **extra_fields)
         return user
 
@@ -66,7 +67,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     name = models.CharField(verbose_name="Name", max_length=254, null=True, blank=True)
     country = models.CharField(verbose_name="Country", max_length=25, null=False, )
     phone_no = models.CharField(verbose_name="Phone:", max_length=12, null=False, )
-    role = models.PositiveSmallIntegerField(verbose_name="Role", choices=UserGroups.ROLES, default=UserGroups.logistics)
+    role = models.PositiveSmallIntegerField(verbose_name="Role", choices=UserGroups.ROLES, default=UserGroups.shipper)
+    port = models.CharField(verbose_name="Port",max_length=40,null=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
@@ -81,3 +83,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     def get_absolute_url(self):
         return "/users/%i/" % self.pk
+
+
+

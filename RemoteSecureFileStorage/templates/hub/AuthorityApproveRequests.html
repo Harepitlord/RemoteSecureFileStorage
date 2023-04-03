@@ -120,19 +120,19 @@
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'hub:NewShipment' %}">
+            <a class="nav-link" href="{% url 'hub:AuthorityApprovals' %}">
               <span data-feather="shopping-cart" class="align-text-bottom"></span>
-              Make Shipment
+              Pending for approval
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'hub:ShipmentHistory' %}">
+            <a class="nav-link" href="{% url 'hub:AuthorityApprovals' %}">
               <span data-feather="users" class="align-text-bottom"></span>
               Shipments
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'hub:ShipperReports' %}">
+            <a class="nav-link" href="{% url 'hub:AuthorityApprovals' %}">
               <span data-feather="bar-chart-2" class="align-text-bottom"></span>
               Reports
             </a>
@@ -162,7 +162,7 @@
         <tbody>
         {% for shipment in object_list %}
             <tr>
-                <td><a href="{{ shipment.get_absolute_url }}">{{ shipment.shipmentId }}</a></td>
+                <td><a href="{{ shipment.get_approve_url }}">{{ shipment.shipmentId }}</a></td>
             <td>{{ shipment.Shipper_Name }}</td>
             <td>{{ shipment.Source }}</td>
             <td>{{ shipment.Destination }}</td>

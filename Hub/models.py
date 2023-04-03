@@ -1,5 +1,7 @@
 from django.contrib.auth import get_user_model
+from django.core.files.storage import FileSystemStorage
 from django.db import models
+from django.urls import reverse
 
 
 # Create your models here.
@@ -22,10 +24,19 @@ class Shipment(models.Model):
 
     manager = models.Manager()
 
+    def get_absolute_url(self):
+        return reverse('hub:ShipperDetail', args=[str(self.pk)])
+
+    def get_approve_url(self):
+        return reverse('hub:AuthorityRequest',args=[str(self.pk)])
+
+
+def getFileUploadPath(instance , filename):
+    return f"{instance.shipmentId.shipmentId}/{filename}"
+
 
 class Documents(models.Model):
-    documentName = models.CharField(name="Document_Name", max_length=50)
-    document = models.FileField(name="Cargo_Doc")
+    document = models.FileField(name="Cargo_Doc", upload_to=getFileUploadPath)
 
     shipmentId = models.ForeignKey(to=Shipment, on_delete=models.CASCADE)
 
@@ -38,6 +49,32 @@ class Shipper(models.Model):
 
 
 class ShipmentAccess(models.Model):
+    class AccessLevels(models.TextChoices):
+        OWNER = "Owner"
+        VIEWER = "Viewer"
+
     userid = models.ForeignKey(to=get_user_model(), on_delete=models.CASCADE)
     shipment = models.ForeignKey(to=Shipment, on_delete=models.CASCADE)
-    # access = models.CharField()
+    access = models.CharField(max_length=20, choices=AccessLevels.choices, default=AccessLevels.OWNER)
+
+
+class ShipmentAccessRequests(models.Model):
+    requester = models.ForeignKey(to=get_user_model(), related_name='Requester', on_delete=models.CASCADE)
+    shipmentId = models.ForeignKey(to=get_user_model(), related_name='ShipmentId', on_delete=models.CASCADE)
+
+
+class Ledger(models.Model):
+    class Events(models.TextChoices):
+        CREATE = "CREATE"
+        APPROVED = "APPROVED"
+        SHARED = "SHARED"
+        ACCESS_REQUEST = "ACCESS_REQUEST"
+        APPROVE_ACCESS = "APPROVE_ACCESS"
+        APPROVE_REQUEST = "APPROVE_REQUEST"
+
+    userId = models.ForeignKey(to=get_user_model(),related_name='LedgerUser',on_delete=models.CASCADE)
+    shipmentId = models.ForeignKey(to=Shipment,related_name='LedgerShipment',on_delete=models.CASCADE)
+    event = models.CharField(max_length=20,choices=Events.choices)
+
+    manager = models.Manager()
+

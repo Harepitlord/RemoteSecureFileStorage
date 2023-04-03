@@ -69,19 +69,7 @@
         white-space: nowrap;
         -webkit-overflow-scrolling: touch;
       }
-
-      .clickable-row {
-
-      }
-
     </style>
-      <script>
-          jQuery(document).ready(function ($) {
-              $(".clickable-row").click(function () {
-                  window.location = $(this).data("href");
-              })
-          })
-      </script>
 
 
     <!-- Custom styles for this template -->
@@ -114,25 +102,25 @@
       <div class="position-sticky pt-3 sidebar-sticky">
         <ul class="nav flex-column">
           <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="{% url 'hub:ShipperDashboard' %}">
+            <a class="nav-link active" aria-current="page" href="{% url 'hub:AuthorityDashboard' %}">
               <span data-feather="home" class="align-text-bottom"></span>
               Dashboard
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'hub:NewShipment' %}">
+            <a class="nav-link" href="{% url 'hub:AuthorityApprovals' %}">
               <span data-feather="shopping-cart" class="align-text-bottom"></span>
-              Make Shipment
+              Pending for Approval
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'hub:ShipmentHistory' %}">
+            <a class="nav-link" href="{% url 'hub:AuthorityApprovals' %}">
               <span data-feather="users" class="align-text-bottom"></span>
               Shipments
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'hub:ShipperReports' %}">
+            <a class="nav-link" href="{% url 'hub:AuthorityApprovals' %}">
               <span data-feather="bar-chart-2" class="align-text-bottom"></span>
               Reports
             </a>
@@ -142,39 +130,10 @@
     </nav>
 
     <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-        <h1 class="h2">List of Shipments</h1>
-    </div>
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Dashboard</h1>
 
-    <div class="container">
-    <table class="table table-striped">
-        <thead class="thead">
-            <tr>
-                <th scope="col">Shipment #</th>
-                <th scope="col">Shipper Name</th>
-                <th scope="col">Origin</th>
-                <th scope="col">Destination</th>
-                <th scope="col">Recipient</th>
-                <th scope="col">Cargo Name</th>
-                <th scope="col">Cargo Type</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for shipment in object_list %}
-            <tr>
-                <td><a href="{{ shipment.get_absolute_url }}">{{ shipment.shipmentId }}</a></td>
-            <td>{{ shipment.Shipper_Name }}</td>
-            <td>{{ shipment.Source }}</td>
-            <td>{{ shipment.Destination }}</td>
-            <td>{{ shipment.Receiver_Name }}</td>
-            <td>{{ shipment.Cargo_Name }}</td>
-            <td>{{ shipment.Cargo_Type }}</td>
-            </tr>
-        {% endfor %}
-
-        </tbody>
-      </table>
-    </div>
+      </div>
     </main>
     </div>
     </div>

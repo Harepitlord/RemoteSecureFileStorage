@@ -26,18 +26,16 @@ class UserLogin(AuthenticationForm):
 
 
 class CustomUserCreationForm(UserCreationForm):
+    role = forms.ChoiceField(choices=models.UserGroups.ROLES)
+
     class Meta:
         model = get_user_model()
-        fields = ('name', 'email', 'country', 'phone_no','role')
+        fields = ('name', 'email', 'country', 'phone_no', 'role', 'port')
 
 
 class CustomUserChangeForm(UserChangeForm):
+    role = forms.ChoiceField(choices=models.UserGroups.ROLES)
+
     class Meta:
         model = get_user_model()
-        fields = ('name', 'email', 'country', 'phone_no',)
-
-
-class UserUpdateForm(forms.ModelForm):
-    class Meta:
-        model = get_user_model()
-        fields = ('name', 'country', 'phone_no', 'email')
+        fields = ('name', 'email', 'country', 'phone_no', 'port')

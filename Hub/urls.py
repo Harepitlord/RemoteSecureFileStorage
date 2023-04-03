@@ -14,5 +14,10 @@ urlpatterns = [
     path('shipper/makeShipment',views.NewShipment.as_view(),name='NewShipment'),
     path('shipper/shipmentHistory',views.ShipmentHistory.as_view(),name='ShipmentHistory'),
     path('shipper/reports',views.ShipmentReports.as_view(),name='ShipperReports'),
-    path('shipper/shipment/<slug:ShipmentId>',views.ShipmentDetailView.as_view(),name="ShipperDetail"),
+    path('shipper/shipment/<int:pk>',views.ShipmentDetailView.as_view(),name="ShipperDetail"),
+
+    path('authority/home',views.AuthorityDashboard.as_view(),name='AuthorityDashboard'),
+    path('authority/listApprovals',views.AuthorityApproval.as_view(),name='AuthorityApprovals'),
+    path('authority/request/<int:pk>',views.AuthorityRequestApproval.as_view(),name='AuthorityRequest'),
+    path('authority/approve',views.AuthorityApproveRequest.as_view(),name='AuthorityApproved'),
 ]
