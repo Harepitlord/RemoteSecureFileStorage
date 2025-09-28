@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'widget_tweaks',
 
     'Hub',
-    'UserManagement',
+    'UserManagement'
 ]
 
 MIDDLEWARE = [
@@ -120,7 +120,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = 'static/'
-STATIC_ROOT = 'RemoteSecureFileStorage/static'
+STATIC_ROOT = os.path.join(BASE_DIR, 'RemoteSecureFileStorage/static')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field

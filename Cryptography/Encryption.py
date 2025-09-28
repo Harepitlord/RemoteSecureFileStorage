@@ -51,10 +51,6 @@ class AsyncEncrypt:
         return encrypted_aes_key
 
 
-from Crypto.Cipher import AES
-from Crypto.PublicKey import RSA
-
-
 class SyncDecrypt:
 
     def decrypt(self, filename, key, nonce):
