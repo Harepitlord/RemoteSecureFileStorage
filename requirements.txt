@@ -1,0 +1,26 @@
+# Django Framework
+Django==5.1.12
+
+# Django Extensions
+django-widget-tweaks==1.4.12
+
+# Cryptography Libraries
+pycryptodome==3.19.0
+cryptography==41.0.7
+
+# Additional dependencies for enhanced security
+# django-cryptography==1.1  # Removed due to Django 5.1 compatibility issues
+
+# Development and Testing
+pytest==7.4.3
+pytest-django==4.7.0
+
+# Production dependencies
+gunicorn==21.2.0
+whitenoise==6.6.0
+
+# Database (if needed for production)
+# psycopg2-binary==2.9.9  # Commented out due to Python 3.13 compatibility issues
+
+# Environment management
+python-decouple==3.8

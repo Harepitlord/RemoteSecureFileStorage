@@ -1,0 +1,296 @@
+{% extends 'base/base_with_notifications.html' %}
+{% load static %}
+
+{% block title %}Dashboard - Port Authority of India{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'Hub/css/enhanced_forms.css' %}" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+{% endblock %}
+
+{% block sidebar_content %}
+<ul class="nav flex-column">
+    <li class="nav-item">
+        <a class="nav-link active" aria-current="page" href="{% url 'hub:Dashboard' %}">
+            <span data-feather="home" class="align-text-bottom"></span>
+            Dashboard
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'hub:About' %}">
+            <span data-feather="info" class="align-text-bottom"></span>
+            About
+        </a>
+    </li>
+    {% if user.role == 'SHIPPER' %}
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'hub:ShipperDashboard' %}">
+            <span data-feather="user" class="align-text-bottom"></span>
+            Shipper Portal
+        </a>
+    </li>
+    {% elif user.role == 'LOGISTICS' %}
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'hub:LogisticsDashboard' %}">
+            <span data-feather="truck" class="align-text-bottom"></span>
+            Logistics Portal
+        </a>
+    </li>
+    {% elif user.role == 'AUTHORITY' %}
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'hub:AuthorityDashboard' %}">
+            <span data-feather="shield" class="align-text-bottom"></span>
+            Authority Portal
+        </a>
+    </li>
+    {% endif %}
+</ul>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Welcome to Port Authority Dashboard</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary">
+                <span data-feather="download" class="align-text-bottom"></span>
+                Export
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Welcome Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h4 class="card-title mb-3">Welcome, {{ user.email }}!</h4>
+                        <p class="card-text">
+                            You are logged in as a <strong>{{ user.role|title }}</strong> user. 
+                            {% if user.role == 'SHIPPER' %}
+                                You can create and manage shipments, track their status, and view reports.
+                            {% elif user.role == 'LOGISTICS' %}
+                                You can manage assigned shipments, update delivery status, and coordinate logistics.
+                            {% elif user.role == 'AUTHORITY' %}
+                                You can review and approve shipments, generate certificates, and oversee operations.
+                            {% else %}
+                                Access the system features based on your role permissions.
+                            {% endif %}
+                        </p>
+                        <div class="mt-3">
+                            {% if user.role == 'SHIPPER' %}
+                                <a href="{% url 'hub:ShipperDashboard' %}" class="btn btn-primary me-2">
+                                    <span data-feather="user" class="align-text-bottom me-1"></span>
+                                    Go to Shipper Portal
+                                </a>
+                                <a href="{% url 'hub:NewShipment' %}" class="btn btn-outline-primary">
+                                    <span data-feather="plus" class="align-text-bottom me-1"></span>
+                                    Create New Shipment
+                                </a>
+                            {% elif user.role == 'LOGISTICS' %}
+                                <a href="{% url 'hub:LogisticsDashboard' %}" class="btn btn-primary me-2">
+                                    <span data-feather="truck" class="align-text-bottom me-1"></span>
+                                    Go to Logistics Portal
+                                </a>
+                            {% elif user.role == 'AUTHORITY' %}
+                                <a href="{% url 'hub:AuthorityDashboard' %}" class="btn btn-primary me-2">
+                                    <span data-feather="shield" class="align-text-bottom me-1"></span>
+                                    Go to Authority Portal
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <div class="dashboard-icon">
+                            {% if user.role == 'SHIPPER' %}
+                                <span data-feather="package" style="width: 80px; height: 80px;" class="text-primary"></span>
+                            {% elif user.role == 'LOGISTICS' %}
+                                <span data-feather="truck" style="width: 80px; height: 80px;" class="text-success"></span>
+                            {% elif user.role == 'AUTHORITY' %}
+                                <span data-feather="shield" style="width: 80px; height: 80px;" class="text-warning"></span>
+                            {% else %}
+                                <span data-feather="home" style="width: 80px; height: 80px;" class="text-info"></span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Stats -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            System Status
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            <span class="badge bg-success">Online</span>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <span data-feather="activity" class="text-primary"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Your Role
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ user.role|title }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <span data-feather="user" class="text-success"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Last Login
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            {{ user.last_login|date:"M d, Y" }}
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <span data-feather="clock" class="text-info"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            Notifications
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            {{ notifications.count|default:0 }}
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <span data-feather="bell" class="text-warning"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- System Information -->
+<div class="row">
+    <div class="col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <span data-feather="info" class="align-text-bottom me-2"></span>
+                    System Information
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-borderless">
+                        <tbody>
+                            <tr>
+                                <td><strong>System Name:</strong></td>
+                                <td>Remote Secure File Storage</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Version:</strong></td>
+                                <td>2.0.0</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Security Level:</strong></td>
+                                <td><span class="badge bg-success">AES-GCM 256-bit</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Encryption:</strong></td>
+                                <td><span class="badge bg-info">RSA-OAEP + AES</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Status:</strong></td>
+                                <td><span class="badge bg-success">Operational</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <span data-feather="help-circle" class="align-text-bottom me-2"></span>
+                    Quick Help
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="help-section">
+                    <h6>Getting Started:</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <span data-feather="check-circle" class="text-success me-2"></span>
+                            Complete your profile setup
+                        </li>
+                        <li class="mb-2">
+                            <span data-feather="key" class="text-warning me-2"></span>
+                            Generate your RSA encryption keys
+                        </li>
+                        <li class="mb-2">
+                            <span data-feather="shield" class="text-info me-2"></span>
+                            Review security guidelines
+                        </li>
+                        <li class="mb-2">
+                            <span data-feather="book" class="text-primary me-2"></span>
+                            Read the user manual
+                        </li>
+                    </ul>
+                    <div class="mt-3">
+                        <a href="{% url 'hub:About' %}" class="btn btn-sm btn-outline-primary">
+                            <span data-feather="info" class="align-text-bottom me-1"></span>
+                            Learn More
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize feather icons
+    feather.replace();
+});
+</script>
+{% endblock %}

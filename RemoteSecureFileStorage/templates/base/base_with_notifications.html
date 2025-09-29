@@ -1,0 +1,505 @@
+<!doctype html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Port Authority of India{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="{% static 'Hub/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'Hub/css/dashboard.css' %}" rel="stylesheet">
+    
+    <!-- Enhanced CSS -->
+    <link href="{% static 'Hub/css/notifications.css' %}" rel="stylesheet">
+    <link href="{% static 'Hub/css/enhanced_forms.css' %}" rel="stylesheet">
+
+    <!-- Custom Dropdown Styles -->
+    <style>
+        /* Floating Dropdown Styles */
+        .navbar .dropdown-menu {
+            position: absolute !important;
+            top: 100% !important;
+            right: 0 !important;
+            left: auto !important;
+            z-index: 1050 !important;
+            min-width: 280px;
+            max-width: 350px;
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            padding: 0;
+            margin-top: 8px;
+            background: white;
+            transform: translateY(-10px);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .navbar .dropdown-menu.show {
+            transform: translateY(0);
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Notification Dropdown Specific */
+        .notification-dropdown {
+            min-width: 320px !important;
+            max-width: 380px !important;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .notification-dropdown .dropdown-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 20px;
+            margin: 0;
+            border-radius: 12px 12px 0 0;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .notification-dropdown .dropdown-item {
+            padding: 12px 20px;
+            border-bottom: 1px solid #f1f3f4;
+            transition: all 0.2s ease;
+        }
+
+        .notification-dropdown .dropdown-item:hover {
+            background: #f8f9ff;
+            transform: translateX(2px);
+        }
+
+        .notification-dropdown .dropdown-item:last-child {
+            border-bottom: none;
+            border-radius: 0 0 12px 12px;
+        }
+
+        .notification-item {
+            display: block;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 0.85rem;
+            margin-bottom: 4px;
+        }
+
+        .notification-message {
+            color: #718096;
+            font-size: 0.8rem;
+            line-height: 1.4;
+            margin-bottom: 4px;
+        }
+
+        .notification-dropdown small {
+            color: #a0aec0;
+            font-size: 0.75rem;
+        }
+
+        .notification-dropdown .dropdown-divider {
+            margin: 0;
+            border-color: #e2e8f0;
+        }
+
+        /* User Dropdown Specific */
+        .navbar .nav-item:last-child .dropdown-menu {
+            min-width: 200px !important;
+        }
+
+        .navbar .dropdown-menu .dropdown-item {
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            color: #4a5568;
+            transition: all 0.2s ease;
+        }
+
+        .navbar .dropdown-menu .dropdown-item:hover {
+            background: #f7fafc;
+            color: #2d3748;
+            transform: translateX(2px);
+        }
+
+        .navbar .dropdown-menu .dropdown-item i {
+            margin-right: 8px;
+            width: 16px;
+            text-align: center;
+        }
+
+        /* Dropdown Arrow */
+        .navbar .dropdown::before {
+            content: '';
+            position: absolute;
+            top: -6px;
+            right: 20px;
+            width: 12px;
+            height: 12px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-bottom: none;
+            border-right: none;
+            transform: rotate(45deg);
+            z-index: 1051;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .navbar .dropdown.show::before {
+            opacity: 1;
+        }
+
+        /* Ensure dropdowns don't affect navbar layout */
+        .navbar-nav .dropdown {
+            position: static;
+        }
+
+        .navbar-nav .dropdown-toggle::after {
+            display: none;
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .notification-dropdown {
+                min-width: 280px !important;
+                max-width: 90vw !important;
+                right: 10px !important;
+            }
+
+            .navbar .dropdown-menu {
+                min-width: 250px;
+                max-width: 90vw;
+            }
+        }
+    </style>
+    
+    <!-- Feather Icons -->
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.min.js"></script>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Messages -->
+    {% if messages %}
+        <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1055;">
+            {% for message in messages %}
+                <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="toast-header">
+                        <strong class="me-auto">
+                            {% if message.tags == 'error' %}
+                                <span class="text-danger">Error</span>
+                            {% elif message.tags == 'warning' %}
+                                <span class="text-warning">Warning</span>
+                            {% elif message.tags == 'success' %}
+                                <span class="text-success">Success</span>
+                            {% else %}
+                                <span class="text-info">Info</span>
+                            {% endif %}
+                        </strong>
+                        <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+                    </div>
+                    <div class="toast-body">{{ message }}</div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Header -->
+    <header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+        <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6" href="{% url 'hub:Home' %}">
+            Port Authority of India
+        </a>
+        
+        <button class="navbar-toggler position-absolute d-md-none collapsed" 
+                type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <!-- Search Bar -->
+        <input class="form-control form-control-dark w-100 rounded-0 border-0" 
+               type="text" placeholder="Search shipments..." aria-label="Search">
+        
+        <!-- Notification & User Menu -->
+        <div class="navbar-nav d-flex flex-row">
+            {% if user.is_authenticated %}
+                <!-- Notification Bell -->
+                <div class="nav-item dropdown me-3">
+                    <a class="nav-link dropdown-toggle position-relative" href="#" 
+                       id="notificationDropdown" role="button" data-bs-toggle="dropdown">
+                        <span data-feather="bell" class="align-text-bottom"></span>
+                        {% if request.unread_notification_count > 0 %}
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                {{ request.unread_notification_count }}
+                            </span>
+                        {% endif %}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end notification-dropdown">
+                        <li><h6 class="dropdown-header">Notifications</h6></li>
+                        {% for notification in request.recent_notifications %}
+                            <li>
+                                <a class="dropdown-item {% if not notification.is_read %}fw-bold{% endif %}" 
+                                   href="#" data-notification-id="{{ notification.id }}">
+                                    <div class="notification-item">
+                                        <div class="notification-title">{{ notification.title }}</div>
+                                        <div class="notification-message">{{ notification.message|truncatechars:50 }}</div>
+                                        <small class="text-muted">{{ notification.created_at|timesince }} ago</small>
+                                    </div>
+                                </a>
+                            </li>
+                        {% empty %}
+                            <li><span class="dropdown-item-text">No notifications</span></li>
+                        {% endfor %}
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-center" href="#" data-bs-toggle="modal" data-bs-target="#notificationModal">View All</a></li>
+                    </ul>
+                </div>
+                
+                <!-- User Menu -->
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" 
+                       role="button" data-bs-toggle="dropdown">
+                        {{ user.name|default:user.email }}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{% url 'UserManagement:Profile' %}">
+                            <span data-feather="user" class="align-text-bottom me-2"></span>Profile
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form method="post" action="{% url 'UserManagement:Logout' %}" style="margin: 0;">
+                                {% csrf_token %}
+                                <button type="submit" class="dropdown-item" style="border: none; background: none; width: 100%; text-align: left;">
+                                    <span data-feather="log-out" class="align-text-bottom me-2"></span>Sign out
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            {% else %}
+                <div class="nav-item text-nowrap">
+                    <a class="nav-link px-3" href="{% url 'UserManagement:Login' %}">Sign in</a>
+                </div>
+            {% endif %}
+        </div>
+    </header>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            {% block sidebar %}
+            <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+                <div class="position-sticky pt-3 sidebar-sticky">
+                    {% block sidebar_content %}{% endblock %}
+                </div>
+            </nav>
+            {% endblock %}
+
+            <!-- Main Content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="{% static 'Hub/js/bootstrap.bundle.min.js' %}"></script>
+
+    <!-- Initialize Feather Icons -->
+    <script>
+        (() => {
+            'use strict'
+            feather.replace({ 'aria-hidden': 'true' })
+        })()
+        
+        // Auto-hide toasts after 5 seconds
+        document.addEventListener('DOMContentLoaded', function() {
+            const toasts = document.querySelectorAll('.toast');
+            toasts.forEach(toast => {
+                setTimeout(() => {
+                    const bsToast = new bootstrap.Toast(toast);
+                    bsToast.hide();
+                }, 5000);
+            });
+        });
+        
+        // Mark notifications as read when clicked
+        document.querySelectorAll('[data-notification-id]').forEach(item => {
+            item.addEventListener('click', function(e) {
+                const notificationId = this.dataset.notificationId;
+                fetch(`/notifications/mark-read/${notificationId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCsrfToken(),
+                        'Content-Type': 'application/json',
+                    },
+                });
+                this.classList.remove('fw-bold');
+            });
+        });
+
+        // Utility function to get CSRF token from cookie
+        function getCsrfToken() {
+            const name = 'csrftoken';
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function markNotificationAsRead(notificationId) {
+            // Simple page reload approach for now
+            window.location.reload();
+        }
+
+        function markAllNotificationsAsRead() {
+            // Simple page reload approach for now
+            window.location.reload();
+        }
+
+        // Dynamic Navigation Highlighting
+        function setActiveNavigation() {
+            const currentPath = window.location.pathname;
+            const navLinks = document.querySelectorAll('.sidebar .nav-link');
+
+            // Remove active class from all links
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                link.removeAttribute('aria-current');
+            });
+
+            // Add active class based on current path
+            navLinks.forEach(link => {
+                const href = link.getAttribute('href');
+                if (href && (currentPath === href || currentPath.startsWith(href + '/'))) {
+                    link.classList.add('active');
+                    link.setAttribute('aria-current', 'page');
+                }
+            });
+
+            // Special handling for specific routes
+            if (currentPath.includes('/authority/')) {
+                if (currentPath.includes('/listApprovals') || currentPath.includes('/request/')) {
+                    const approvalsLink = document.querySelector('a[href*="listApprovals"], a[href*="AuthorityApprovals"]');
+                    if (approvalsLink) {
+                        navLinks.forEach(link => link.classList.remove('active'));
+                        approvalsLink.classList.add('active');
+                        approvalsLink.setAttribute('aria-current', 'page');
+                    }
+                } else if (currentPath.includes('/home') || currentPath.endsWith('/authority/')) {
+                    const dashboardLink = document.querySelector('a[href*="AuthorityDashboard"], a[href*="/authority/home"]');
+                    if (dashboardLink) {
+                        navLinks.forEach(link => link.classList.remove('active'));
+                        dashboardLink.classList.add('active');
+                        dashboardLink.setAttribute('aria-current', 'page');
+                    }
+                }
+            } else if (currentPath.includes('/logistics/')) {
+                if (currentPath.includes('/assigned') || currentPath.includes('/delivery')) {
+                    const assignedLink = document.querySelector('a[href*="assigned"], a[href*="delivery"]');
+                    if (assignedLink) {
+                        navLinks.forEach(link => link.classList.remove('active'));
+                        assignedLink.classList.add('active');
+                        assignedLink.setAttribute('aria-current', 'page');
+                    }
+                } else if (currentPath.includes('/home') || currentPath.endsWith('/logistics/')) {
+                    const dashboardLink = document.querySelector('a[href*="LogisticsDashboard"], a[href*="/logistics/home"]');
+                    if (dashboardLink) {
+                        navLinks.forEach(link => link.classList.remove('active'));
+                        dashboardLink.classList.add('active');
+                        dashboardLink.setAttribute('aria-current', 'page');
+                    }
+                }
+            } else if (currentPath.includes('/shipper/')) {
+                if (currentPath.includes('/new') || currentPath.includes('/create')) {
+                    const newShipmentLink = document.querySelector('a[href*="new"], a[href*="create"]');
+                    if (newShipmentLink) {
+                        navLinks.forEach(link => link.classList.remove('active'));
+                        newShipmentLink.classList.add('active');
+                        newShipmentLink.setAttribute('aria-current', 'page');
+                    }
+                } else if (currentPath.includes('/shipments') || currentPath.includes('/list')) {
+                    const shipmentsLink = document.querySelector('a[href*="shipments"], a[href*="list"]');
+                    if (shipmentsLink) {
+                        navLinks.forEach(link => link.classList.remove('active'));
+                        shipmentsLink.classList.add('active');
+                        shipmentsLink.setAttribute('aria-current', 'page');
+                    }
+                } else if (currentPath.includes('/home') || currentPath.endsWith('/shipper/')) {
+                    const dashboardLink = document.querySelector('a[href*="ShipperDashboard"], a[href*="/shipper/home"]');
+                    if (dashboardLink) {
+                        navLinks.forEach(link => link.classList.remove('active'));
+                        dashboardLink.classList.add('active');
+                        dashboardLink.setAttribute('aria-current', 'page');
+                    }
+                }
+            }
+        }
+
+        // Initialize navigation highlighting when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            setActiveNavigation();
+        });
+    </script>
+
+    <!-- Notification Modal -->
+    <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="notificationModalLabel">
+                        <i class="fas fa-bell"></i> All Notifications
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="notificationModalBody" style="max-height: 500px; overflow-y: auto;">
+                    {% if notifications %}
+                        {% for notification in notifications %}
+                        <div class="notification-item p-3 mb-3 border rounded {% if not notification.is_read %}border-start border-primary border-3 bg-light{% endif %}">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h6 class="mb-0 fw-bold">{{ notification.title }}</h6>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="badge bg-info text-uppercase" style="font-size: 0.7rem;">
+                                        {{ notification.notification_type }}
+                                    </span>
+                                    <small class="text-muted">{{ notification.created_at|timesince }} ago</small>
+                                </div>
+                            </div>
+                            <p class="mb-2 text-muted">{{ notification.message }}</p>
+                            {% if not notification.is_read %}
+                            <button class="btn btn-sm btn-outline-success" onclick="markNotificationAsRead({{ notification.id }})">
+                                <i class="fas fa-check"></i> Mark as Read
+                            </button>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-bell-slash fa-3x text-muted mb-3"></i>
+                            <h5>No Notifications</h5>
+                            <p class="text-muted">You don't have any notifications yet.</p>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-primary" id="markAllReadBtn" onclick="markAllNotificationsAsRead()">
+                        <i class="fas fa-check-double"></i> Mark All Read
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

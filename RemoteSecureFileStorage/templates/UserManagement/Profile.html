@@ -1,0 +1,193 @@
+{% extends 'base/base_with_notifications.html' %}
+{% load static %}
+
+{% block title %}Profile - Port Authority of India{% endblock %}
+
+{% block sidebar_content %}
+<ul class="nav flex-column">
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'hub:Home' %}">
+            <span data-feather="home" class="align-text-bottom"></span>
+            Dashboard
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link active" aria-current="page" href="{% url 'UserManagement:Profile' %}">
+            <span data-feather="user" class="align-text-bottom"></span>
+            Profile
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'hub:About' %}">
+            <span data-feather="info" class="align-text-bottom"></span>
+            About
+        </a>
+    </li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">User Profile</h1>
+</div>
+
+<div class="row">
+    <!-- User Information -->
+    <div class="col-md-6">
+        <div class="dashboard-card">
+            <div class="dashboard-card-header">
+                <div class="dashboard-card-icon primary">
+                    <span data-feather="user"></span>
+                </div>
+                <div>
+                    <h3 class="dashboard-card-title">User Information</h3>
+                </div>
+            </div>
+            
+            <div class="row mb-3">
+                <div class="col-sm-4"><strong>Name:</strong></div>
+                <div class="col-sm-8">{{ user.name }}</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-sm-4"><strong>Email:</strong></div>
+                <div class="col-sm-8">{{ user.email }}</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-sm-4"><strong>Role:</strong></div>
+                <div class="col-sm-8">
+                    <span class="badge bg-primary">{{ user.get_role_display }}</span>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-sm-4"><strong>Country:</strong></div>
+                <div class="col-sm-8">{{ user.country }}</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-sm-4"><strong>Phone:</strong></div>
+                <div class="col-sm-8">{{ user.phone_no }}</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-sm-4"><strong>Joined:</strong></div>
+                <div class="col-sm-8">{{ user.date_joined|date:"M d, Y" }}</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- RSA Key Management -->
+    <div class="col-md-6">
+        <div class="dashboard-card">
+            <div class="dashboard-card-header">
+                <div class="dashboard-card-icon {% if has_rsa_keys %}success{% else %}warning{% endif %}">
+                    <span data-feather="key"></span>
+                </div>
+                <div>
+                    <h3 class="dashboard-card-title">RSA Key Management</h3>
+                </div>
+            </div>
+            
+            {% if has_rsa_keys %}
+                <div class="alert alert-success" role="alert">
+                    <span data-feather="check-circle" class="me-2"></span>
+                    <strong>RSA Keys Active</strong><br>
+                    Your RSA keys are generated and ready for secure file access.
+                    <br><small class="text-muted">Generated: {{ user.key_generated_at|date:"M d, Y H:i" }}</small>
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <form method="post" onsubmit="return confirm('Are you sure? This will regenerate your keys and may affect access to previously encrypted files.');">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="regenerate_keys">
+                        <button type="submit" class="btn btn-outline-warning">
+                            <span data-feather="refresh-cw" class="me-2"></span>
+                            Regenerate Keys
+                        </button>
+                    </form>
+                </div>
+            {% else %}
+                <div class="alert alert-warning" role="alert">
+                    <span data-feather="alert-triangle" class="me-2"></span>
+                    <strong>RSA Keys Required</strong><br>
+                    You need to generate RSA keys to access encrypted shipment files.
+                </div>
+                
+                <div class="key-generation-info mb-3">
+                    <h5>What are RSA Keys?</h5>
+                    <p class="text-muted">
+                        RSA keys are used to encrypt and decrypt your shipment files securely. 
+                        Each user has a unique key pair that ensures only authorized personnel 
+                        can access sensitive documents.
+                    </p>
+                    
+                    <h6>Key Features:</h6>
+                    <ul class="text-muted">
+                        <li>256-bit AES-GCM encryption for files</li>
+                        <li>RSA-OAEP encryption for key management</li>
+                        <li>Secure vault storage for private keys</li>
+                        <li>Multi-user access control</li>
+                    </ul>
+                </div>
+                
+                <div class="d-grid">
+                    <form method="post" id="generateKeysForm">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="generate_keys">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <span data-feather="key" class="me-2"></span>
+                            Generate RSA Keys
+                        </button>
+                    </form>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Recent Notifications -->
+{% if unread_notifications %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="dashboard-card">
+            <div class="dashboard-card-header">
+                <div class="dashboard-card-icon info">
+                    <span data-feather="bell"></span>
+                </div>
+                <div>
+                    <h3 class="dashboard-card-title">Recent Notifications</h3>
+                </div>
+            </div>
+            
+            <div class="list-group list-group-flush">
+                {% for notification in unread_notifications %}
+                <div class="list-group-item {% if not notification.is_read %}list-group-item-primary{% endif %}">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h6 class="mb-1">{{ notification.title }}</h6>
+                        <small>{{ notification.created_at|timesince }} ago</small>
+                    </div>
+                    <p class="mb-1">{{ notification.message }}</p>
+                    {% if notification.shipment %}
+                        <small class="text-muted">Shipment: {{ notification.shipment.shipmentId }}</small>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="card-footer text-center">
+                <a href="#" class="btn btn-outline-primary btn-sm">View All Notifications</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('generateKeysForm')?.addEventListener('submit', function(e) {
+    const button = this.querySelector('button[type="submit"]');
+    button.classList.add('btn-loading');
+    button.disabled = true;
+    button.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Generating Keys...';
+});
+</script>
+{% endblock %}

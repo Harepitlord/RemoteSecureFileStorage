@@ -1,0 +1,239 @@
+{% extends 'base/base_with_notifications.html' %}
+{% load static %}
+
+{% block title %}Shipper Dashboard - Port Authority of India{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'Hub/css/enhanced_forms.css' %}" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+{% endblock %}
+
+{% block sidebar_content %}
+<ul class="nav flex-column">
+    <li class="nav-item">
+        <a class="nav-link active" aria-current="page" href="{% url 'hub:ShipperDashboard' %}">
+            <span data-feather="home" class="align-text-bottom"></span>
+            Dashboard
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'hub:NewShipment' %}">
+            <span data-feather="shopping-cart" class="align-text-bottom"></span>
+            Make Shipment
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'hub:ShipmentHistory' %}">
+            <span data-feather="users" class="align-text-bottom"></span>
+            Shipments
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'hub:ShipperReports' %}">
+            <span data-feather="bar-chart-2" class="align-text-bottom"></span>
+            Reports
+        </a>
+    </li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Shipper Dashboard</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{% url 'hub:NewShipment' %}" class="btn btn-sm btn-primary">
+                <span data-feather="plus" class="align-text-bottom"></span>
+                New Shipment
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Analytics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="analytics-card">
+            <div class="analytics-number">{{ user_stats.total_shipments|default:0 }}</div>
+            <div class="analytics-label">Total Shipments</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="analytics-card warning">
+            <div class="analytics-number">{{ user_stats.pending_shipments|default:0 }}</div>
+            <div class="analytics-label">Pending Approval</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="analytics-card success">
+            <div class="analytics-number">{{ user_stats.approved_shipments|default:0 }}</div>
+            <div class="analytics-label">Approved</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="analytics-card danger">
+            <div class="analytics-number">{{ user_stats.rejected_shipments|default:0 }}</div>
+            <div class="analytics-label">Rejected</div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Shipment Status Chart -->
+    <div class="col-md-6">
+        <div class="chart-container">
+            <div class="chart-title">
+                <span data-feather="pie-chart" class="me-2"></span>
+                Shipment Status Distribution
+            </div>
+            <canvas id="statusChart" width="400" height="200"></canvas>
+        </div>
+    </div>
+
+    <!-- Recent Shipments -->
+    <div class="col-md-6">
+        <div class="chart-container">
+            <div class="chart-title">
+                <span data-feather="package" class="me-2"></span>
+                Recent Shipments
+            </div>
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Cargo Type</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for shipment in recent_shipments %}
+                        <tr>
+                            <td>{{ shipment.shipmentId }}</td>
+                            <td>{{ shipment.Cargo_Type }}</td>
+                            <td>
+                                <span class="status-indicator {{ shipment.status|lower }}">
+                                    {{ shipment.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'hub:ShipperDetail' shipment.pk %}" class="btn btn-outline-primary">
+                                        <span data-feather="eye" class="align-text-bottom"></span>
+                                    </a>
+                                    {% if shipment.status == 'APPROVED' or shipment.status == 'REJECTED' %}
+                                        {% for doc in shipment.approval_documents.all %}
+                                            <a href="{% url 'hub:DownloadDocument' doc.id %}" class="btn btn-outline-success" title="Download {{ doc.document_type }} Certificate">
+                                                <span data-feather="download" class="align-text-bottom"></span>
+                                            </a>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">No shipments yet</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Activity Feed -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="activity-feed">
+            <div class="chart-title">
+                <span data-feather="activity" class="me-2"></span>
+                Recent Activity
+            </div>
+            {% for activity in activity_feed %}
+            <div class="activity-item">
+                <div class="activity-icon {{ activity.event|lower }}">
+                    {% if activity.event == 'CREATE' %}
+                        <span data-feather="plus"></span>
+                    {% elif activity.event == 'APPROVED' %}
+                        <span data-feather="check"></span>
+                    {% elif activity.event == 'REJECTED' %}
+                        <span data-feather="x"></span>
+                    {% else %}
+                        <span data-feather="activity"></span>
+                    {% endif %}
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">{{ activity.description }}</div>
+                    <div class="activity-description">
+                        Shipment: {{ activity.shipment.shipmentId }} - {{ activity.shipment.Cargo_Type }}
+                    </div>
+                    <div class="activity-meta">
+                        {% if activity.is_own_action %}
+                            You
+                        {% else %}
+                            {{ activity.user.get_full_name|default:activity.user.email }}
+                        {% endif %}
+                        • Entry #{{ activity.timestamp }}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center text-muted py-4">
+                <span data-feather="inbox" class="mb-2" style="width: 48px; height: 48px;"></span>
+                <p>No recent activity</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Status Distribution Chart
+    const statusCtx = document.getElementById('statusChart').getContext('2d');
+    const statusData = {{ status_distribution|safe }};
+    
+    const statusLabels = statusData.map(item => item.status);
+    const statusCounts = statusData.map(item => item.count);
+    
+    new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: statusLabels,
+            datasets: [{
+                data: statusCounts,
+                backgroundColor: [
+                    '#6c757d',  // draft
+                    '#ffc107',  // submitted
+                    '#28a745',  // approved
+                    '#dc3545'   // rejected
+                ],
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        usePointStyle: true
+                    }
+                }
+            }
+        }
+    });
+    
+    // Initialize feather icons
+    feather.replace();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,325 @@
+{% extends 'base/base_with_notifications.html' %}
+{% load static %}
+
+{% block title %}Logistics Dashboard - Port Authority of India{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'Hub/css/enhanced_forms.css' %}" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+{% endblock %}
+
+{% block sidebar_content %}
+<ul class="nav flex-column">
+    <li class="nav-item">
+        <a class="nav-link active" aria-current="page" href="{% url 'hub:LogisticsDashboard' %}">
+            <span data-feather="home" class="align-text-bottom"></span>
+            Dashboard
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'hub:LogisticsAssignedShipments' %}">
+            <span data-feather="package" class="align-text-bottom"></span>
+            Assigned Shipments
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'hub:LogisticsDeliveryTracking' %}">
+            <span data-feather="map" class="align-text-bottom"></span>
+            Delivery Tracking
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'hub:LogisticsReports' %}">
+            <span data-feather="bar-chart-2" class="align-text-bottom"></span>
+            Reports
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="#">
+            <span data-feather="truck" class="align-text-bottom"></span>
+            Assigned Shipments
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="#">
+            <span data-feather="map" class="align-text-bottom"></span>
+            Route Planning
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="#">
+            <span data-feather="package" class="align-text-bottom"></span>
+            Delivery Status
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="#">
+            <span data-feather="bar-chart-2" class="align-text-bottom"></span>
+            Reports
+        </a>
+    </li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Logistics Dashboard</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary">
+                <span data-feather="download" class="align-text-bottom"></span>
+                Export
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            Assigned Shipments
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ user_stats.assigned_shipments|default:0 }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <span data-feather="truck" class="text-primary"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            In Transit
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ user_stats.in_transit|default:0 }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <span data-feather="navigation" class="text-success"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Delivered
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ user_stats.delivered|default:0 }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <span data-feather="check-circle" class="text-info"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            Pending Pickup
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ user_stats.pending_pickup|default:0 }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <span data-feather="clock" class="text-warning"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts and Tables Row -->
+<div class="row">
+    <!-- Shipment Status Chart -->
+    <div class="col-xl-6 col-lg-7">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <span data-feather="pie-chart" class="align-text-bottom me-2"></span>
+                    Shipment Status Distribution
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="chart-pie pt-4 pb-2">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assigned Shipments -->
+    <div class="col-xl-6 col-lg-5">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <span data-feather="package" class="align-text-bottom me-2"></span>
+                    Recent Assigned Shipments
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Cargo Type</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for shipment in assigned_shipments %}
+                            <tr>
+                                <td>{{ shipment.shipmentId }}</td>
+                                <td>{{ shipment.Cargo_Type }}</td>
+                                <td>
+                                    <span class="badge bg-{% if shipment.status == 'APPROVED' %}success{% elif shipment.status == 'SUBMITTED' %}warning{% else %}secondary{% endif %}">
+                                        {{ shipment.status }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="#" class="btn btn-sm btn-primary">
+                                        <span data-feather="eye" class="align-text-bottom"></span>
+                                        View
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center">No assigned shipments yet</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <span data-feather="activity" class="align-text-bottom me-2"></span>
+                    Recent Activity
+                </h6>
+            </div>
+            <div class="card-body">
+                {% if activity_feed %}
+                    <div class="activity-feed">
+                        {% for activity in activity_feed %}
+                        <div class="activity-item d-flex align-items-start mb-3">
+                            <div class="activity-icon me-3">
+                                {% if activity.event == 'ASSIGNED' %}
+                                    <span data-feather="user-plus" class="text-info"></span>
+                                {% elif activity.event == 'PICKUP' %}
+                                    <span data-feather="truck" class="text-warning"></span>
+                                {% elif activity.event == 'DELIVERED' %}
+                                    <span data-feather="check-circle" class="text-success"></span>
+                                {% else %}
+                                    <span data-feather="activity"></span>
+                                {% endif %}
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">{{ activity.description }}</div>
+                                <div class="activity-description">
+                                    Shipment: {{ activity.shipment.shipmentId }} - {{ activity.shipment.Cargo_Type }}
+                                </div>
+                                <div class="activity-meta">
+                                    {% if activity.is_own_action %}
+                                        You
+                                    {% else %}
+                                        {{ activity.user.email }}
+                                    {% endif %}
+                                    • {{ activity.timestamp|timesince }} ago
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <span data-feather="activity" class="text-muted mb-3" style="width: 48px; height: 48px;"></span>
+                        <p class="text-muted">No recent activity</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Status Distribution Chart
+    const statusCtx = document.getElementById('statusChart').getContext('2d');
+    const statusData = {{ status_distribution|safe }};
+    
+    const statusLabels = statusData.map(item => item.status || 'Unknown');
+    const statusCounts = statusData.map(item => item.count || 0);
+    
+    new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: statusLabels,
+            datasets: [{
+                data: statusCounts,
+                backgroundColor: [
+                    '#4e73df',
+                    '#1cc88a', 
+                    '#36b9cc',
+                    '#f6c23e',
+                    '#e74a3b'
+                ],
+                hoverBackgroundColor: [
+                    '#2e59d9',
+                    '#17a673',
+                    '#2c9faf',
+                    '#f4b619',
+                    '#e02d1b'
+                ],
+                hoverBorderColor: "rgba(234, 236, 244, 1)",
+            }],
+        },
+        options: {
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'bottom'
+                }
+            },
+            cutout: '80%',
+        },
+    });
+    
+    // Initialize feather icons
+    feather.replace();
+});
+</script>
+{% endblock %}

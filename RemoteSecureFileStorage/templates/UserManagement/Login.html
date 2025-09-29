@@ -61,15 +61,13 @@
         -webkit-overflow-scrolling: touch;
       }
 
-      body {
-        background-image: {% static '/Hub/images/wallpaperflare.com_wallpaper.jpg' %};
-      }
+      /* Background handled by login.css */
     </style>
 
 
     <!-- Custom styles for this template -->
   </head>
-  <body class="text-center" background="{% static '/Hub/images/wallpaperflare.com_wallpaper.jpg' %}">
+  <body class="text-center">
   {% if messages %}
         {% for message in messages %}
          {% if message.tags %}  <script>alert("{{ message }}")</script> {% endif %}
@@ -86,11 +84,11 @@
 
       {% for field in form %}
       <div class="form-floating">
-      {{ field.errors }}
-{#        <label for="{{ field.name}}">{{ field.label}}</label>#}
+          {{ field.errors }}
           {{ field|add_class:'form-control' }}
-     </div>
-    {% endfor %}
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+      </div>
+      {% endfor %}
 
     <div class="checkbox mb-3">
       <label>

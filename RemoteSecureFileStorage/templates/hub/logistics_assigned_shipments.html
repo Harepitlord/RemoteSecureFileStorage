@@ -1,0 +1,275 @@
+{% extends 'base/base_with_notifications.html' %}
+{% load static %}
+
+{% block title %}Assigned Shipments - Logistics Portal{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'Hub/css/enhanced_forms.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block sidebar_content %}
+<ul class="nav flex-column">
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'hub:LogisticsDashboard' %}">
+            <span data-feather="home" class="align-text-bottom"></span>
+            Dashboard
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link active" aria-current="page" href="{% url 'hub:LogisticsAssignedShipments' %}">
+            <span data-feather="package" class="align-text-bottom"></span>
+            Assigned Shipments
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'hub:LogisticsDeliveryTracking' %}">
+            <span data-feather="map" class="align-text-bottom"></span>
+            Delivery Tracking
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'hub:LogisticsReports' %}">
+            <span data-feather="bar-chart-2" class="align-text-bottom"></span>
+            Reports
+        </a>
+    </li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Assigned Shipments</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary">
+                <span data-feather="download" class="align-text-bottom"></span>
+                Export
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            Total Assigned
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.total_assigned }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <span data-feather="package" class="text-primary"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            Pending Pickup
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.pending_pickup }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <span data-feather="clock" class="text-warning"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            In Transit
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.in_transit }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <span data-feather="truck" class="text-info"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Delivered
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.delivered }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <span data-feather="check-circle" class="text-success"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Assigned Shipments Table -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <span data-feather="list" class="align-text-bottom me-2"></span>
+            Your Assigned Shipments
+        </h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>Shipment ID</th>
+                        <th>Cargo Type</th>
+                        <th>Route</th>
+                        <th>Status</th>
+                        <th>Assigned Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for assignment in assignments %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'hub:LogisticsShipmentDetail' assignment.shipment.pk %}" class="text-decoration-none">
+                                {{ assignment.shipment.shipmentId }}
+                            </a>
+                        </td>
+                        <td>{{ assignment.shipment.Cargo_Type }}</td>
+                        <td>{{ assignment.shipment.Source }} → {{ assignment.shipment.Destination }}</td>
+                        <td>
+                            <span class="badge bg-{% if assignment.status == 'DELIVERED' %}success{% elif assignment.status == 'IN_TRANSIT' %}info{% elif assignment.status == 'ASSIGNED' %}warning{% else %}danger{% endif %}">
+                                {{ assignment.get_status_display }}
+                            </span>
+                        </td>
+                        <td>{{ assignment.assigned_at|date:"M d, Y H:i" }}</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{% url 'hub:LogisticsShipmentDetail' assignment.shipment.pk %}" class="btn btn-outline-primary">
+                                    <span data-feather="eye" class="align-text-bottom"></span>
+                                    View
+                                </a>
+                                {% if assignment.status != 'DELIVERED' and assignment.status != 'FAILED' %}
+                                <button type="button" class="btn btn-outline-success" onclick="updateStatus('{{ assignment.shipment.id }}', '{{ assignment.status }}')">
+                                    <span data-feather="edit" class="align-text-bottom"></span>
+                                    Update
+                                </button>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">
+                            <span data-feather="package" class="mb-3" style="width: 48px; height: 48px;"></span>
+                            <p>No shipments assigned to you yet</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        {% if is_paginated %}
+        <nav aria-label="Shipments pagination">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                    </li>
+                {% endif %}
+                
+                <li class="page-item active">
+                    <span class="page-link">
+                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                    </span>
+                </li>
+                
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Status Update Modal -->
+<div class="modal fade" id="statusUpdateModal" tabindex="-1" aria-labelledby="statusUpdateModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="statusUpdateModalLabel">Update Shipment Status</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="statusUpdateForm" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="statusSelect" class="form-label">New Status</label>
+                        <select class="form-select" id="statusSelect" name="status" required>
+                            <option value="">Select status...</option>
+                            <option value="ASSIGNED">Assigned</option>
+                            <option value="IN_TRANSIT">In Transit</option>
+                            <option value="DELIVERED">Delivered</option>
+                            <option value="FAILED">Delivery Failed</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="notesTextarea" class="form-label">Notes (Optional)</label>
+                        <textarea class="form-control" id="notesTextarea" name="notes" rows="3" placeholder="Add any relevant notes..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update Status</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function updateStatus(shipmentId, currentStatus) {
+    const modal = new bootstrap.Modal(document.getElementById('statusUpdateModal'));
+    const form = document.getElementById('statusUpdateForm');
+    const statusSelect = document.getElementById('statusSelect');
+    
+    // Set form action
+    form.action = `/logistics/shipment/${shipmentId}/update-status`;
+    
+    // Set current status as selected
+    statusSelect.value = currentStatus;
+    
+    // Show modal
+    modal.show();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    feather.replace();
+});
+</script>
+{% endblock %}

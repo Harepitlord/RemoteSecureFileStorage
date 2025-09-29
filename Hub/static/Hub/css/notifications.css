@@ -1,0 +1,286 @@
+/* Notification System Styles */
+:root {
+    --primary-blue: #2470dc;
+    --success-green: #28a745;
+    --warning-orange: #ffc107;
+    --danger-red: #dc3545;
+    --info-blue: #17a2b8;
+    --dark-bg: #212529;
+    --light-bg: #f8f9fa;
+    --border-color: #dee2e6;
+}
+
+/* Notification Bell */
+.navbar .nav-link {
+    position: relative;
+}
+
+.navbar .nav-link .badge {
+    font-size: 0.6rem;
+    min-width: 1.2rem;
+    height: 1.2rem;
+    line-height: 1.2rem;
+    text-align: center;
+}
+
+/* Notification Dropdown */
+.notification-dropdown {
+    width: 350px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.notification-item {
+    padding: 0.5rem 0;
+}
+
+.notification-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.25rem;
+}
+
+.notification-message {
+    font-size: 0.8rem;
+    color: #666;
+    margin-bottom: 0.25rem;
+    line-height: 1.3;
+}
+
+.notification-dropdown .dropdown-item {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.notification-dropdown .dropdown-item:hover {
+    background-color: var(--light-bg);
+}
+
+.notification-dropdown .dropdown-item.fw-bold {
+    background-color: #f0f8ff;
+}
+
+/* Toast Notifications */
+.toast-container {
+    z-index: 1055;
+}
+
+.toast {
+    min-width: 300px;
+}
+
+.toast-header .text-danger {
+    color: var(--danger-red) !important;
+}
+
+.toast-header .text-warning {
+    color: var(--warning-orange) !important;
+}
+
+.toast-header .text-success {
+    color: var(--success-green) !important;
+}
+
+.toast-header .text-info {
+    color: var(--info-blue) !important;
+}
+
+/* Status Indicators */
+.status-indicator {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-draft {
+    background-color: #e9ecef;
+    color: #495057;
+}
+
+.status-submitted {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.status-approved {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-rejected {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* Availability Indicators */
+.availability-check {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.availability-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.availability-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    margin-right: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.availability-available {
+    background-color: var(--success-green);
+    color: white;
+}
+
+.availability-unavailable {
+    background-color: var(--danger-red);
+    color: white;
+}
+
+.availability-text {
+    font-weight: 500;
+}
+
+.availability-count {
+    color: #666;
+    font-size: 0.9rem;
+    margin-left: auto;
+}
+
+/* Dashboard Cards */
+.dashboard-card {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    transition: box-shadow 0.15s ease-in-out;
+}
+
+.dashboard-card:hover {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.dashboard-card-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.dashboard-card-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+}
+
+.dashboard-card-icon.primary {
+    background-color: rgba(36, 112, 220, 0.1);
+    color: var(--primary-blue);
+}
+
+.dashboard-card-icon.success {
+    background-color: rgba(40, 167, 69, 0.1);
+    color: var(--success-green);
+}
+
+.dashboard-card-icon.warning {
+    background-color: rgba(255, 193, 7, 0.1);
+    color: var(--warning-orange);
+}
+
+.dashboard-card-icon.danger {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: var(--danger-red);
+}
+
+.dashboard-card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.dashboard-card-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-blue);
+    margin-bottom: 0.5rem;
+}
+
+.dashboard-card-description {
+    color: #666;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+/* Quick Actions */
+.quick-actions {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.quick-action-btn {
+    flex: 1;
+    padding: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    background: white;
+    text-decoration: none;
+    color: #333;
+    transition: all 0.15s ease-in-out;
+    text-align: center;
+}
+
+.quick-action-btn:hover {
+    background-color: var(--primary-blue);
+    color: white;
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+}
+
+.quick-action-icon {
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.quick-action-text {
+    font-weight: 500;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .notification-dropdown {
+        width: 280px;
+    }
+    
+    .quick-actions {
+        flex-direction: column;
+    }
+    
+    .dashboard-card-value {
+        font-size: 1.5rem;
+    }
+    
+    .availability-check {
+        padding: 1rem;
+    }
+}

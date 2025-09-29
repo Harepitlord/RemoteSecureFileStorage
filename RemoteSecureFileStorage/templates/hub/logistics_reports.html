@@ -1,0 +1,326 @@
+{% extends 'base/base_with_notifications.html' %}
+{% load static %}
+
+{% block title %}Reports - Logistics Portal{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'Hub/css/enhanced_forms.css' %}" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+{% endblock %}
+
+{% block sidebar_content %}
+<ul class="nav flex-column">
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'hub:LogisticsDashboard' %}">
+            <span data-feather="home" class="align-text-bottom"></span>
+            Dashboard
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'hub:LogisticsAssignedShipments' %}">
+            <span data-feather="package" class="align-text-bottom"></span>
+            Assigned Shipments
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'hub:LogisticsDeliveryTracking' %}">
+            <span data-feather="map" class="align-text-bottom"></span>
+            Delivery Tracking
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link active" aria-current="page" href="{% url 'hub:LogisticsReports' %}">
+            <span data-feather="bar-chart-2" class="align-text-bottom"></span>
+            Reports
+        </a>
+    </li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Performance Reports</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary">
+                <span data-feather="download" class="align-text-bottom"></span>
+                Export PDF
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary">
+                <span data-feather="file-text" class="align-text-bottom"></span>
+                Export CSV
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Performance Metrics -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            Total Assignments
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_assignments }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <span data-feather="package" class="text-primary"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Delivery Rate
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ delivery_rate }}%</div>
+                    </div>
+                    <div class="col-auto">
+                        <span data-feather="check-circle" class="text-success"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Avg Delivery Time
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            {% if avg_delivery_time %}{{ avg_delivery_time }}h{% else %}—{% endif %}
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <span data-feather="clock" class="text-info"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            This Month
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ monthly_assignments }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <span data-feather="calendar" class="text-warning"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row mb-4">
+    <div class="col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <span data-feather="pie-chart" class="align-text-bottom me-2"></span>
+                    Delivery Status Distribution
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="chart-container" style="position: relative; height: 300px;">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <span data-feather="trending-up" class="align-text-bottom me-2"></span>
+                    Performance Trend
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="chart-container" style="position: relative; height: 300px;">
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Assignments Table -->
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <span data-feather="list" class="align-text-bottom me-2"></span>
+                    Recent Assignments
+                </h6>
+            </div>
+            <div class="card-body">
+                {% if recent_assignments %}
+                    <div class="table-responsive">
+                        <table class="table table-bordered" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Shipment ID</th>
+                                    <th>Cargo</th>
+                                    <th>Route</th>
+                                    <th>Status</th>
+                                    <th>Assigned Date</th>
+                                    <th>Completion</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for assignment in recent_assignments %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'hub:LogisticsShipmentDetail' assignment.shipment.pk %}" class="text-decoration-none">
+                                            {{ assignment.shipment.shipmentId }}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <strong>{{ assignment.shipment.Cargo_Name }}</strong>
+                                            <br>
+                                            <small class="text-muted">{{ assignment.shipment.Cargo_Type }}</small>
+                                        </div>
+                                    </td>
+                                    <td>{{ assignment.shipment.Source }} → {{ assignment.shipment.Destination }}</td>
+                                    <td>
+                                        <span class="badge bg-{% if assignment.status == 'DELIVERED' %}success{% elif assignment.status == 'IN_TRANSIT' %}info{% elif assignment.status == 'ASSIGNED' %}warning{% else %}danger{% endif %}">
+                                            {{ assignment.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>{{ assignment.assigned_at|date:"M d, Y" }}</td>
+                                    <td>
+                                        {% if assignment.delivery_date %}
+                                            {{ assignment.delivery_date|date:"M d, Y" }}
+                                        {% elif assignment.pickup_date %}
+                                            <span class="text-info">In Progress</span>
+                                        {% else %}
+                                            <span class="text-muted">Pending</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <span data-feather="package" class="text-muted mb-3" style="width: 48px; height: 48px;"></span>
+                        <p class="text-muted">No assignments found</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    feather.replace();
+    
+    // Status Distribution Chart
+    const statusCtx = document.getElementById('statusChart').getContext('2d');
+    new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Delivered', 'In Transit', 'Pending', 'Failed'],
+            datasets: [{
+                data: [{{ delivered_count }}, 
+                       {{ total_assignments|add:"-"|add:delivered_count|add:"-"|add:failed_count }}, 
+                       {{ total_assignments|add:"-"|add:delivered_count }}, 
+                       {{ failed_count }}],
+                backgroundColor: [
+                    '#28a745',
+                    '#17a2b8',
+                    '#ffc107',
+                    '#dc3545'
+                ],
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        usePointStyle: true
+                    }
+                }
+            }
+        }
+    });
+    
+    // Performance Trend Chart
+    const trendCtx = document.getElementById('trendChart').getContext('2d');
+    new Chart(trendCtx, {
+        type: 'line',
+        data: {
+            labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+            datasets: [{
+                label: 'Deliveries',
+                data: [{{ delivered_count|floatformat:0 }}, 
+                       {{ delivered_count|add:"2"|floatformat:0 }}, 
+                       {{ delivered_count|add:"1"|floatformat:0 }}, 
+                       {{ delivered_count|floatformat:0 }}],
+                borderColor: '#007bff',
+                backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.1)'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

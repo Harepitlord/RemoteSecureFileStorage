@@ -1,0 +1,377 @@
+{% extends 'base/base_with_notifications.html' %}
+{% load static %}
+
+{% block title %}Shipment {{ shipment.shipmentId }} - Logistics Portal{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'Hub/css/enhanced_forms.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block sidebar_content %}
+<ul class="nav flex-column">
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'hub:LogisticsDashboard' %}">
+            <span data-feather="home" class="align-text-bottom"></span>
+            Dashboard
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'hub:LogisticsAssignedShipments' %}">
+            <span data-feather="package" class="align-text-bottom"></span>
+            Assigned Shipments
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'hub:LogisticsDeliveryTracking' %}">
+            <span data-feather="map" class="align-text-bottom"></span>
+            Delivery Tracking
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'hub:LogisticsReports' %}">
+            <span data-feather="bar-chart-2" class="align-text-bottom"></span>
+            Reports
+        </a>
+    </li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Shipment {{ shipment.shipmentId }}</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{% url 'hub:LogisticsAssignedShipments' %}" class="btn btn-sm btn-outline-secondary">
+                <span data-feather="arrow-left" class="align-text-bottom"></span>
+                Back to List
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Shipment Status Card -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <span data-feather="info" class="align-text-bottom me-2"></span>
+                    Assignment Status
+                </h6>
+                {% if assignment.status != 'DELIVERED' and assignment.status != 'FAILED' %}
+                <button type="button" class="btn btn-sm btn-primary" onclick="updateStatus('{{ shipment.id }}', '{{ assignment.status }}')">
+                    <span data-feather="edit" class="align-text-bottom me-1"></span>
+                    Update Status
+                </button>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <td><strong>Current Status:</strong></td>
+                                <td>
+                                    <span class="badge bg-{% if assignment.status == 'DELIVERED' %}success{% elif assignment.status == 'IN_TRANSIT' %}info{% elif assignment.status == 'ASSIGNED' %}warning{% else %}danger{% endif %} fs-6">
+                                        {{ assignment.get_status_display }}
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Assigned Date:</strong></td>
+                                <td>{{ assignment.assigned_at|date:"M d, Y H:i" }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Assigned By:</strong></td>
+                                <td>{{ assignment.assigned_by.email }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <td><strong>Pickup Date:</strong></td>
+                                <td>{{ assignment.pickup_date|date:"M d, Y H:i"|default:"Not picked up yet" }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Delivery Date:</strong></td>
+                                <td>{{ assignment.delivery_date|date:"M d, Y H:i"|default:"Not delivered yet" }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Notes:</strong></td>
+                                <td>{{ assignment.notes|default:"No notes" }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Shipment Details -->
+<div class="row mb-4">
+    <div class="col-lg-8">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <span data-feather="package" class="align-text-bottom me-2"></span>
+                    Shipment Details
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <td><strong>Shipment ID:</strong></td>
+                                <td>{{ shipment.shipmentId }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Shipper:</strong></td>
+                                <td>{{ shipment.Shipper_Name }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Company:</strong></td>
+                                <td>{{ shipment.Shipment_Company }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Receiver:</strong></td>
+                                <td>{{ shipment.Receiver_Name }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <td><strong>Cargo Name:</strong></td>
+                                <td>{{ shipment.Cargo_Name }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Cargo Type:</strong></td>
+                                <td>{{ shipment.Cargo_Type }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Source:</strong></td>
+                                <td>{{ shipment.Source }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Destination:</strong></td>
+                                <td>{{ shipment.Destination }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <span data-feather="clock" class="align-text-bottom me-2"></span>
+                    Timeline
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-marker bg-success"></div>
+                        <div class="timeline-content">
+                            <h6>Shipment Created</h6>
+                            <p class="text-muted">{{ shipment.created_at|date:"M d, Y H:i" }}</p>
+                        </div>
+                    </div>
+                    
+                    {% if shipment.status == 'APPROVED' %}
+                    <div class="timeline-item">
+                        <div class="timeline-marker bg-info"></div>
+                        <div class="timeline-content">
+                            <h6>Approved</h6>
+                            <p class="text-muted">{{ shipment.approved_at|date:"M d, Y H:i" }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-marker bg-warning"></div>
+                        <div class="timeline-content">
+                            <h6>Assigned to You</h6>
+                            <p class="text-muted">{{ assignment.assigned_at|date:"M d, Y H:i" }}</p>
+                        </div>
+                    </div>
+                    
+                    {% if assignment.pickup_date %}
+                    <div class="timeline-item">
+                        <div class="timeline-marker bg-primary"></div>
+                        <div class="timeline-content">
+                            <h6>Picked Up</h6>
+                            <p class="text-muted">{{ assignment.pickup_date|date:"M d, Y H:i" }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if assignment.delivery_date %}
+                    <div class="timeline-item">
+                        <div class="timeline-marker bg-success"></div>
+                        <div class="timeline-content">
+                            <h6>Delivered</h6>
+                            <p class="text-muted">{{ assignment.delivery_date|date:"M d, Y H:i" }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Activity History -->
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <span data-feather="activity" class="align-text-bottom me-2"></span>
+                    Activity History
+                </h6>
+            </div>
+            <div class="card-body">
+                {% if history %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>User</th>
+                                    <th>Event</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for activity in history %}
+                                <tr>
+                                    <td>{{ activity.timestamp|date:"M d, Y H:i" }}</td>
+                                    <td>{{ activity.userId.email }}</td>
+                                    <td>
+                                        <span class="badge bg-secondary">{{ activity.event }}</span>
+                                    </td>
+                                    <td>{{ activity.description|default:"No description" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <span data-feather="activity" class="text-muted mb-3" style="width: 48px; height: 48px;"></span>
+                        <p class="text-muted">No activity history available</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Status Update Modal -->
+<div class="modal fade" id="statusUpdateModal" tabindex="-1" aria-labelledby="statusUpdateModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="statusUpdateModalLabel">Update Shipment Status</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="statusUpdateForm" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="statusSelect" class="form-label">New Status</label>
+                        <select class="form-select" id="statusSelect" name="status" required>
+                            <option value="">Select status...</option>
+                            <option value="ASSIGNED">Assigned</option>
+                            <option value="IN_TRANSIT">In Transit</option>
+                            <option value="DELIVERED">Delivered</option>
+                            <option value="FAILED">Delivery Failed</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="notesTextarea" class="form-label">Notes (Optional)</label>
+                        <textarea class="form-control" id="notesTextarea" name="notes" rows="3" placeholder="Add any relevant notes..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update Status</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function updateStatus(shipmentId, currentStatus) {
+    const modal = new bootstrap.Modal(document.getElementById('statusUpdateModal'));
+    const form = document.getElementById('statusUpdateForm');
+    const statusSelect = document.getElementById('statusSelect');
+    
+    // Set form action
+    form.action = `/logistics/shipment/${shipmentId}/update-status`;
+    
+    // Set current status as selected
+    statusSelect.value = currentStatus;
+    
+    // Show modal
+    modal.show();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    feather.replace();
+});
+</script>
+
+<style>
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #dee2e6;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -22px;
+    top: 5px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 2px #dee2e6;
+}
+
+.timeline-content h6 {
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+
+.timeline-content p {
+    margin-bottom: 0;
+    font-size: 12px;
+}
+</style>
+{% endblock %}

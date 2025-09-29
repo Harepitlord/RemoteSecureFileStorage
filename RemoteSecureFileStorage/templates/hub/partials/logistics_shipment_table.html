@@ -1,0 +1,76 @@
+{% if shipments %}
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Shipment ID</th>
+                <th>Cargo</th>
+                <th>Route</th>
+                <th>Assigned Date</th>
+                {% if status == 'IN_TRANSIT' %}
+                <th>Pickup Date</th>
+                {% elif status == 'DELIVERED' %}
+                <th>Delivery Date</th>
+                {% elif status == 'FAILED' %}
+                <th>Failed Date</th>
+                {% endif %}
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for assignment in shipments %}
+            <tr>
+                <td>
+                    <a href="{% url 'hub:LogisticsShipmentDetail' assignment.shipment.pk %}" class="text-decoration-none">
+                        {{ assignment.shipment.shipmentId }}
+                    </a>
+                </td>
+                <td>
+                    <div>
+                        <strong>{{ assignment.shipment.Cargo_Name }}</strong>
+                        <br>
+                        <small class="text-muted">{{ assignment.shipment.Cargo_Type }}</small>
+                    </div>
+                </td>
+                <td>
+                    <div>
+                        <span data-feather="map-pin" class="align-text-bottom text-success me-1"></span>
+                        {{ assignment.shipment.Source }}
+                        <br>
+                        <span data-feather="flag" class="align-text-bottom text-danger me-1"></span>
+                        {{ assignment.shipment.Destination }}
+                    </div>
+                </td>
+                <td>{{ assignment.assigned_at|date:"M d, H:i" }}</td>
+                {% if status == 'IN_TRANSIT' %}
+                <td>{{ assignment.pickup_date|date:"M d, H:i"|default:"—" }}</td>
+                {% elif status == 'DELIVERED' %}
+                <td>{{ assignment.delivery_date|date:"M d, H:i"|default:"—" }}</td>
+                {% elif status == 'FAILED' %}
+                <td>{{ assignment.delivery_date|date:"M d, H:i"|default:"—" }}</td>
+                {% endif %}
+                <td>
+                    <div class="btn-group btn-group-sm">
+                        <a href="{% url 'hub:LogisticsShipmentDetail' assignment.shipment.pk %}" class="btn btn-outline-primary">
+                            <span data-feather="eye" class="align-text-bottom"></span>
+                            View
+                        </a>
+                        {% if status != 'DELIVERED' and status != 'FAILED' %}
+                        <button type="button" class="btn btn-outline-success" onclick="updateStatus('{{ assignment.shipment.id }}', '{{ assignment.status }}')">
+                            <span data-feather="edit" class="align-text-bottom"></span>
+                            Update
+                        </button>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="text-center py-5">
+    <span data-feather="package" class="text-muted mb-3" style="width: 48px; height: 48px;"></span>
+    <p class="text-muted">No shipments with this status</p>
+</div>
+{% endif %}

@@ -1,0 +1,69 @@
+<!-- Availability Check Component -->
+<div class="availability-check">
+    <div class="d-flex align-items-center mb-3">
+        <span data-feather="users" class="me-2"></span>
+        <h5 class="mb-0">System Availability Check</h5>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="availability-item">
+                <div class="availability-icon {% if availability.authority_available %}availability-available{% else %}availability-unavailable{% endif %}">
+                    {% if availability.authority_available %}
+                        <span data-feather="check"></span>
+                    {% else %}
+                        <span data-feather="x"></span>
+                    {% endif %}
+                </div>
+                <div class="availability-text">
+                    <strong>Authority Users</strong>
+                    <br>
+                    <small class="text-muted">Required for shipment approval</small>
+                </div>
+                <div class="availability-count">
+                    {{ availability.authority_count }} available
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="availability-item">
+                <div class="availability-icon {% if availability.logistics_available %}availability-available{% else %}availability-unavailable{% endif %}">
+                    {% if availability.logistics_available %}
+                        <span data-feather="check"></span>
+                    {% else %}
+                        <span data-feather="x"></span>
+                    {% endif %}
+                </div>
+                <div class="availability-text">
+                    <strong>Logistics Users</strong>
+                    <br>
+                    <small class="text-muted">Required for shipment handling</small>
+                </div>
+                <div class="availability-count">
+                    {{ availability.logistics_count }} available
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% if not availability.authority_available or not availability.logistics_available %}
+        <div class="alert alert-warning mt-3" role="alert">
+            <span data-feather="alert-triangle" class="me-2"></span>
+            <strong>System Not Ready</strong><br>
+            {% if not availability.authority_available %}
+                No Authority users are available for shipment approval.
+            {% endif %}
+            {% if not availability.logistics_available %}
+                No Logistics users are available for shipment handling.
+            {% endif %}
+            <br><small>Please contact your system administrator.</small>
+        </div>
+    {% else %}
+        <div class="alert alert-success mt-3" role="alert">
+            <span data-feather="check-circle" class="me-2"></span>
+            <strong>System Ready</strong><br>
+            All required user types are available. You can proceed with shipment creation.
+        </div>
+    {% endif %}
+</div>

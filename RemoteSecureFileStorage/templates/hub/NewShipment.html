@@ -1,166 +1,149 @@
-<!doctype html>
-<html lang="en">
-  <head>
-      {% load static %}
-      {% load widget_tweaks %}
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Dashboard</title>
-    <link href="{% static 'Hub/css/bootstrap.min.css' %}" rel="stylesheet">
-    <link href="{% static 'Hub/css/dashboard.css' %}" rel="stylesheet">
-    <script src="{% static 'Hub/js/bootstrap.bundle.min.js' %}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.min.js" integrity="sha384-uO3SXW5IuS1ZpFPKugNNWqTZRRglnUJK6UAZ/gxOX80nxEkN9NcGZTftn6RzhGWE" crossorigin="anonymous"></script><script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js" integrity="sha384-zNy6FEbO50N+Cg5wap8IKA4M/ZnLJgzc6w2NqACZaK0u0FXfOWRRJOnQtpZun8ha" crossorigin="anonymous"></script>
-{#    <script src="{% static '/Hub/js/dashboard.js' %}"></script>#}
-    <script>
-        (() => {
-            'use strict'
-            feather.replace({ 'aria-hidden': 'true' })
-        })()
-      </script>
+{% extends 'base/base_with_notifications.html' %}
+{% load static %}
+{% load widget_tweaks %}
 
-    <style>
-      .bd-placeholder-img {
-        font-size: 1.125rem;
-        text-anchor: middle;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        user-select: none;
-      }
+{% block title %}Create New Shipment - Port Authority of India{% endblock %}
 
-      @media (min-width: 768px) {
-        .bd-placeholder-img-lg {
-          font-size: 3.5rem;
-        }
-      }
+{% block sidebar_content %}
+<ul class="nav flex-column">
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'hub:ShipperDashboard' %}">
+            <span data-feather="home" class="align-text-bottom"></span>
+            Dashboard
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link active" aria-current="page" href="{% url 'hub:NewShipment' %}">
+            <span data-feather="shopping-cart" class="align-text-bottom"></span>
+            Make Shipment
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'hub:ShipmentHistory' %}">
+            <span data-feather="users" class="align-text-bottom"></span>
+            Shipments
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'hub:ShipperReports' %}">
+            <span data-feather="bar-chart-2" class="align-text-bottom"></span>
+            Reports
+        </a>
+    </li>
+</ul>
+{% endblock %}
 
-      .b-example-divider {
-        height: 3rem;
-        background-color: rgba(0, 0, 0, .1);
-        border: solid rgba(0, 0, 0, .15);
-        border-width: 1px 0;
-        box-shadow: inset 0 .5em 1.5em rgba(0, 0, 0, .1), inset 0 .125em .5em rgba(0, 0, 0, .15);
-      }
+{% block content %}
 
-      .b-example-vr {
-        flex-shrink: 0;
-        width: 1.5rem;
-        height: 100vh;
-      }
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Create New Shipment Request</h1>
+</div>
 
-      .bi {
-        vertical-align: -.125em;
-        fill: currentColor;
-      }
-
-      .nav-scroller {
-        position: relative;
-        z-index: 2;
-        height: 2.75rem;
-        overflow-y: hidden;
-      }
-
-      .nav-scroller .nav {
-        display: flex;
-        flex-wrap: nowrap;
-        padding-bottom: 1rem;
-        margin-top: -1px;
-        overflow-x: auto;
-        text-align: center;
-        white-space: nowrap;
-        -webkit-overflow-scrolling: touch;
-      }
-    </style>
-
-
-    <!-- Custom styles for this template -->
-  </head>
-  <body>
-  {% if messages %}
-        {% for message in messages %}
-         {% if message.tags %}  <script>alert("{{ message }}")</script> {% endif %}
-
-        {% endfor %}
-
-    {% endif %}
-
-<header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
-  <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6" href="#">Port Authority of India</a>
-  <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-  <input class="form-control form-control-dark w-100 rounded-0 border-0" type="text" placeholder="Search" aria-label="Search">
-  <div class="navbar-nav">
-    <div class="nav-item text-nowrap">
-      <a class="nav-link px-3" href="{% url 'UserManagement:Logout' %}">Sign out</a>
-    </div>
-  </div>
-</header>
-
-<div class="container-fluid">
-  <div class="row">
-    <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
-      <div class="position-sticky pt-3 sidebar-sticky">
-        <ul class="nav flex-column">
-          <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="{% url 'hub:ShipperDashboard' %}">
-              <span data-feather="home" class="align-text-bottom"></span>
-              Dashboard
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'hub:NewShipment' %}">
-              <span data-feather="shopping-cart" class="align-text-bottom"></span>
-              Make Shipment
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'hub:ShipmentHistory' %}">
-              <span data-feather="users" class="align-text-bottom"></span>
-              Shipments
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'hub:ShipperReports' %}">
-              <span data-feather="bar-chart-2" class="align-text-bottom"></span>
-              Reports
-            </a>
-          </li>
-        </ul>
-      </div>
-    </nav>
-
-    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-
-        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-            <h1 class="h2">Create New Shipment Request</h1>
-        </div>
-        <div style="margin: auto; width: 50%; align-items: center;">
-            <form method="post" enctype="multipart/form-data">
+<!-- Shipment Form -->
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="dashboard-card">
+            <form method="post" enctype="multipart/form-data" id="shipmentForm">
                 {% csrf_token %}
                 {% for hidden in form.hidden_fields %}
                     {{ hidden }}
                 {% endfor %}
 
-                {% for field in form.visible_fields %}
-                  <div class="form-group">
-                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-                    {{ field|add_class:'form-control' }}
-                    {% for error in field.errors %}
-                      <span class="help-block">{{ error }}</span>
+                <div class="row">
+                    {% for field in form.visible_fields %}
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                            {% if field.name == 'document' %}
+                                <div class="file-upload-zone" onclick="document.getElementById('{{ field.id_for_label }}').click()">
+                                    <div class="file-upload-icon">
+                                        <span data-feather="upload-cloud"></span>
+                                    </div>
+                                    <div class="file-upload-text">Click to upload documents</div>
+                                    <div class="file-upload-hint">or drag and drop files here</div>
+                                    {{ field|add_class:'file-upload-input' }}
+                                </div>
+                                <div id="fileList" class="file-list"></div>
+                            {% else %}
+                                {{ field|add_class:'form-control' }}
+                            {% endif %}
+                            {% for error in field.errors %}
+                                <div class="invalid-feedback d-block">{{ error }}</div>
+                            {% endfor %}
+                        </div>
                     {% endfor %}
-                  </div>
-                {% endfor %}
-            <br>
+                </div>
 
-
-            <!-- Submit button -->
-            <button type="submit" class="btn btn-primary btn-block mb-4">Create Shipment Request</button>
-          </form>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                    <button type="button" class="btn btn-outline-secondary me-md-2" onclick="history.back()">
+                        <span data-feather="arrow-left" class="me-2"></span>Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary"
+                            {% if not availability.authority_available or not availability.logistics_available %}disabled{% endif %}>
+                        <span data-feather="send" class="me-2"></span>Create Shipment Request
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
-    </main>
-    </div>
+</div>
+{% endblock %}
 
+{% block extra_js %}
+<script>
+// File upload handling
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.querySelector('.file-upload-input');
+    const fileList = document.getElementById('fileList');
+    const uploadZone = document.querySelector('.file-upload-zone');
 
-    </div>
-  </body>
-</html>
+    if (fileInput && uploadZone) {
+        // Drag and drop functionality
+        uploadZone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            uploadZone.classList.add('dragover');
+        });
+
+        uploadZone.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+        });
+
+        uploadZone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            fileInput.files = e.dataTransfer.files;
+            updateFileList();
+        });
+
+        fileInput.addEventListener('change', updateFileList);
+
+        function updateFileList() {
+            fileList.innerHTML = '';
+            if (fileInput.files.length > 0) {
+                Array.from(fileInput.files).forEach(file => {
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'file-item';
+                    fileItem.innerHTML = `
+                        <span data-feather="file" class="file-icon"></span>
+                        <div class="file-info">
+                            <div class="file-name">${file.name}</div>
+                            <div class="file-size">${(file.size / 1024).toFixed(1)} KB</div>
+                        </div>
+                    `;
+                    fileList.appendChild(fileItem);
+                });
+                feather.replace();
+            }
+        }
+    }
+
+    // Form submission handling
+    document.getElementById('shipmentForm').addEventListener('submit', function(e) {
+        const submitBtn = this.querySelector('button[type="submit"]');
+        submitBtn.classList.add('btn-loading');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Creating Shipment...';
+    });
+});
+</script>
+{% endblock %}
